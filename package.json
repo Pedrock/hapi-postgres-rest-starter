@@ -2,15 +2,18 @@
   "name": "hapi-postgres-rest-starter",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "blipp": "^2.3.0",
+    "boom": "^6.0.0",
+    "crumb": "^6.0.3",
     "hapi": "^16.6.2",
     "hapi-swagger": "^7.8.1",
     "inert": "^4.2.1",
