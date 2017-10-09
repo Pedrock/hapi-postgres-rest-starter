@@ -1,0 +1,7 @@
+{
+  "extends": "eslint-config-hapi",
+  "rules": {
+    "hapi/hapi-scope-start": "off",
+    "brace-style": ["warn", "1tbs"]
+  }
+}
