@@ -1,36 +1,106 @@
 'use strict';
 
-const Hapi = require('hapi');
-const Inert = require('inert');
-const Vision = require('vision');
-const HapiSwagger = require('hapi-swagger');
-const Joi = require('joi');
-const Crumb = require('crumb');
-const Blipp = require('blipp');
+require('dotenv-safe').load();
 
-// Create a server with a host and port
-const server = new Hapi.Server();
-server.connection({
-    host: 'localhost',
-    port: 8000
+const Redis = require('redis');
+const Blacklist = require('express-jwt-blacklist');
+const Glue = require('glue');
+
+// redis
+const client = Redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
+if (process.env.NODE_ENV === 'production') {
+    client.auth(process.env.SESSION_PASSWORD, (error) => {
+        if (error) {
+            throw error;
+        }
+    });
+}
+client.on('error', (err) => {
+    console.log('Error ' + err);
 });
 
-server.register([
-    Inert,
-    Vision,
-    HapiSwagger,
-    {
-        register: Crumb,
-        options: { restful: true }
-    },
-    {
-        register: Blipp,
-        options: { showAuth: true }
+Blacklist.configure({
+    tokenId: 'jti',
+    store: {
+        type: 'redis',
+        client
     }
-], (err) => {
+});
+
+
+const manifest = {
+    connections: [
+        {
+            host: 'localhost',
+            port: 8000,
+            labels: ['api']
+        }
+    ],
+    registrations: [
+        { plugin: 'inert' },
+        { plugin: 'vision' },
+        { plugin: 'hapi-swagger' },
+        { plugin: 'hapi-auth-jwt2' },
+        /*{
+            plugin: {
+                register: 'crumb',
+                options: { restful: true }
+            }
+        },*/
+        {
+            plugin: {
+                register: 'blipp',
+                options: { showAuth: true }
+            }
+        },
+        {
+            plugin: './plugins/double-submit-cookie'
+        },
+        {
+            plugin: {
+                register: 'good',
+                options: {
+                    reporters: {
+                        console: [{
+                            module: 'good-squeeze',
+                            name: 'Squeeze',
+                            args: [{
+                                response: '*',
+                                log: '*',
+                                error: '*'
+                            }]
+                        }, {
+                            module: 'good-console'
+                        }, 'stdout']
+                    }
+                }
+            }
+        }
+    ]
+};
+
+const options = {
+    relativeTo: __dirname
+};
+
+Glue.compose(manifest, options, (err, server) => {
     if (err) {
         throw err;
     }
+
+    server.state('session');
+
+    server.auth.strategy('jwt', 'jwt',
+        { key: process.env.JWT_SECRET,
+            validateFunc: (decoded, request, callback) =>
+                Blacklist.isRevoked(null, decoded, (error, revoked) => {
+                    callback(error, !revoked);
+                }),
+            verifyOptions: { algorithms: ['HS256'] }
+        });
+
+    server.route(require('./routes'));
+
     server.start( (err) => {
         if (err) {
             console.log(err);
@@ -39,47 +109,3 @@ server.register([
         }
     });
 });
-
-// Add the route
-server.route([{
-    method: 'GET',
-    path: '/hello',
-    config: {
-        tags: ['api'],
-        validate: {
-            query: {
-                id : Joi.number()
-                    .required()
-                    .description('the id for the todo item')
-            }
-        },
-        handler: function (request, reply) {
-            return reply('hello world');
-        }
-    }
-}, {
-    method: 'POST',
-    path: '/hello',
-    config: {
-        tags: ['api'],
-        validate: {
-            payload: {
-                id : Joi.number()
-                    .required()
-                    .description('the id for the todo item')
-            }
-        },
-        handler: function (request, reply) {
-            return reply('hello world post');
-        }
-    }
-}, {
-    method: 'GET',
-    path: '/csrf',
-    config: {
-        tags: ['api'],
-        handler: function (request, reply) {
-            return reply({ crumb: server.plugins.crumb.generate(request, reply) });
-        }
-    }
-}]);
