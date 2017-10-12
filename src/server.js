@@ -3,27 +3,20 @@
 require('dotenv-safe').load({ allowEmptyValues: true });
 
 const Redis = require('redis');
-const Blacklist = require('express-jwt-blacklist');
 const Glue = require('glue');
 
-require('./db/db');
-
-// redis
-const client = Redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
-client.on('error', (err) => {
+const redis = Redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
+redis.on('error', (err) => {
     console.log('Error ' + err);
 });
 
-Blacklist.configure({
-    tokenId: 'jti',
-    store: {
-        type: 'redis',
-        client
-    }
-});
-
-
 const manifest = {
+    server: {
+        app: {
+            redis,
+            db: require('./db/db')
+        }
+    },
     connections: [
         {
             host: '0.0.0.0',
@@ -32,19 +25,31 @@ const manifest = {
         }
     ],
     registrations: [
+        { plugin: 'hapi-auth-jwt2' },
+        { plugin: './plugins/auth-wrapper' },
         { plugin: 'inert' },
         { plugin: 'vision' },
-        { plugin: 'hapi-swagger' },
-        { plugin: 'hapi-auth-jwt2' },
+        { plugin: {
+            register: 'hapi-swagger',
+            options: {
+                auth: false,
+                securityDefinitions: {
+                    jwt: {
+                        type: 'apiKey',
+                        name: 'Authorization',
+                        in: 'header'
+                    }
+                }
+            }
+        } },
+
         {
             plugin: {
                 register: 'blipp',
                 options: { showAuth: true }
             }
         },
-        {
-            plugin: './plugins/double-submit-cookie'
-        },
+        { plugin: './plugins/double-submit-cookie' },
         {
             plugin: {
                 register: 'good',
@@ -64,6 +69,12 @@ const manifest = {
                     }
                 }
             }
+        },
+        {
+            plugin: {
+                register: './routes/routes',
+                routes: { prefix: '/api' }
+            }
         }
     ]
 };
@@ -77,24 +88,13 @@ Glue.compose(manifest, options, (err, server) => {
         throw err;
     }
 
-    server.state('session');
-
-    server.auth.strategy('jwt', 'jwt',
-        { key: process.env.JWT_SECRET,
-            validateFunc: (decoded, request, callback) =>
-                Blacklist.isRevoked(null, decoded, (error, revoked) => {
-                    callback(error, !revoked);
-                }),
-            verifyOptions: { algorithms: ['HS256'] }
-        });
-
-    server.route(require('./routes'));
+    server.state('token', { isSecure: process.env.NODE_ENV === 'production' });
+    server.state('jwtid', { isSecure: process.env.NODE_ENV === 'production' });
 
     server.start( (err) => {
         if (err) {
-            console.log(err);
-        } else {
-            console.log('Server running at:', server.info.uri);
+            throw err;
         }
+        console.log('Server running at:', server.info.uri);
     });
 });
