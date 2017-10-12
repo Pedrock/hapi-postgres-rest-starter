@@ -1,20 +1,15 @@
 'use strict';
 
-require('dotenv-safe').load();
+require('dotenv-safe').load({ allowEmptyValues: true });
 
 const Redis = require('redis');
 const Blacklist = require('express-jwt-blacklist');
 const Glue = require('glue');
 
+require('./db/db');
+
 // redis
 const client = Redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
-if (process.env.NODE_ENV === 'production') {
-    client.auth(process.env.SESSION_PASSWORD, (error) => {
-        if (error) {
-            throw error;
-        }
-    });
-}
 client.on('error', (err) => {
     console.log('Error ' + err);
 });
@@ -31,7 +26,7 @@ Blacklist.configure({
 const manifest = {
     connections: [
         {
-            host: 'localhost',
+            host: '0.0.0.0',
             port: 8000,
             labels: ['api']
         }
@@ -41,12 +36,6 @@ const manifest = {
         { plugin: 'vision' },
         { plugin: 'hapi-swagger' },
         { plugin: 'hapi-auth-jwt2' },
-        /*{
-            plugin: {
-                register: 'crumb',
-                options: { restful: true }
-            }
-        },*/
         {
             plugin: {
                 register: 'blipp',

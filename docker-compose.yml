@@ -1,0 +1,41 @@
+version: '3'
+services:
+  api:
+    build: .
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=docker
+      - DB_NAME=docker
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=redis
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    command: npm start
+
+  postgres:
+    image: postgres:10-alpine
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=docker
+
+  redis:
+    image: redis:4-alpine
+    volumes:
+      - redis:/data
+
+volumes:
+  postgres:
+  redis:

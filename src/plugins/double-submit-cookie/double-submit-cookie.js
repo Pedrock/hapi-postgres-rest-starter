@@ -2,28 +2,22 @@
 // Based on crumb: https://github.com/hapijs/crumb
 
 // Load modules
-
 const Boom = require('boom');
 const Hoek = require('hoek');
 const Joi = require('joi');
 
-
 // Declare internals
-
 const internals = {};
-
 
 internals.schema = Joi.object().keys({
     key: Joi.string().optional(),
     skip: Joi.func().optional()
 });
 
-
 internals.defaults = {
     key: 'crumb',
     skip: false                    // Set to a function which returns true when to skip crumb generation and validation
 };
-
 
 exports.register = function (server, options, next) {
 

@@ -35,9 +35,6 @@ module.exports = [{
             const obj = { id: 123, name: 'Charlie' };
             const jwtid = Crypto.randomBytes(64).toString('base64');
             const token = JWT.sign(obj, process.env.JWT_SECRET, { jwtid });
-            /*return reply()
-                .state('Set-Cookie', `token=${token}; Secure; HttpOnly`)
-                .state('Set-Cookie', `token=${token}; Secure`);*/
 
             return reply()
                 .state('token', token, { path: '/' })
