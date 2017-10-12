@@ -10,9 +10,9 @@ RUN npm install
 
 COPY . .
 
-ENV NODE_ENV=production
+ENV NODE_ENV production
 
-RUN npm run build
+RUN npm run build; npm prune --production; apk del make gcc g++ python
 
-EXPOSE 8080
+EXPOSE 8000
 CMD ["npm", "start"]

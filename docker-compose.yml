@@ -7,13 +7,12 @@ services:
       - redis
     environment:
       - DB_HOST=postgres
+      - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=docker
       - DB_NAME=docker
       - REDIS_HOST=redis
       - REDIS_PASSWORD=redis
-    expose:
-      - "8000"
     ports:
       - "8000:8000"
     command: npm start
