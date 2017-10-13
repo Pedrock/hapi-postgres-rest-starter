@@ -13,8 +13,9 @@ services:
       - DB_NAME=docker
       - REDIS_HOST=redis
       - REDIS_PASSWORD=redis
-    ports:
-      - "8000:8000"
+      - VIRTUAL_HOST=EXAMPLE.COM
+      - LETSENCRYPT_HOST=EXAMPLE.COM
+      - LETSENCRYPT_EMAIL=EMAIL@EXAMPLE.COM
     command: npm start
 
   postgres:
@@ -34,6 +35,29 @@ services:
     image: redis:4-alpine
     volumes:
       - redis:/data
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./nginx/conf.d:/etc/nginx/conf.d"
+      - "./nginx/vhost.d:/etc/nginx/vhost.d"
+      - "./nginx/html:/usr/share/nginx/html"
+      - "./nginx/certs:/etc/nginx/certs"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+
+  letsencrypt-nginx-proxy-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - "./nginx/conf.d:/etc/nginx/conf.d"
+      - "./nginx/vhost.d:/etc/nginx/vhost.d"
+      - "./nginx/html:/usr/share/nginx/html"
+      - "./nginx/certs:/etc/nginx/certs"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
   postgres:

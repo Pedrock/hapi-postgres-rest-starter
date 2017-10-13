@@ -1,3 +1,7 @@
 node_modules/
 .env
 .idea
+nginx/certs/
+nginx/html/
+nginx/vhost.d/
+nginx/conf.d/default.conf
