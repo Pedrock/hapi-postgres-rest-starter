@@ -20,7 +20,6 @@ const register = function register(server, options, next) {
         verifyOptions: { algorithms: ['HS256'] }
     });
 
-    server.auth.default('jwt');
     next();
 };
 

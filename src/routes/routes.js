@@ -8,10 +8,20 @@ module.exports = {
         server.route([
             {
                 method: 'POST',
+                path: '/register',
+                config: {
+                    tags: ['api'],
+                    plugins: { dsc: false }, // Disable double submit cookies for this route
+                    handler: Handlers.register,
+                    validate: Schema.register
+                }
+            },
+            {
+                method: 'POST',
                 path: '/login',
                 config: {
                     tags: ['api'],
-                    plugins: { dsc: false }, // Disable double submit cookies for the login
+                    plugins: { dsc: false }, // Disable double submit cookies for this route
                     handler: Handlers.login,
                     validate: Schema.login
                 }

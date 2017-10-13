@@ -2,21 +2,9 @@
 
 require('dotenv-safe').load({ allowEmptyValues: true });
 
-const Redis = require('redis');
 const Glue = require('glue');
 
-const redis = Redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
-redis.on('error', (err) => {
-    console.log('Error ' + err);
-});
-
 const manifest = {
-    server: {
-        app: {
-            redis,
-            db: require('./db/db')
-        }
-    },
     connections: [
         {
             host: '0.0.0.0',
@@ -27,12 +15,13 @@ const manifest = {
     registrations: [
         { plugin: 'hapi-auth-jwt2' },
         { plugin: './plugins/auth-wrapper' },
+        { plugin: './plugins/db' },
+        { plugin: './plugins/redis' },
         { plugin: 'inert' },
         { plugin: 'vision' },
         { plugin: {
             register: 'hapi-swagger',
             options: {
-                auth: false,
                 securityDefinitions: {
                     jwt: {
                         type: 'apiKey',
@@ -42,7 +31,6 @@ const manifest = {
                 }
             }
         } },
-
         {
             plugin: {
                 register: 'blipp',

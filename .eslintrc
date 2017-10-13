@@ -1,4 +1,7 @@
 {
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
   "extends": "eslint-config-hapi",
   "rules": {
     "hapi/hapi-scope-start": "off",
