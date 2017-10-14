@@ -1,8 +1,8 @@
 'use strict';
 
-const Blacklist = require('express-jwt-blacklist');
+import * as Blacklist from 'express-jwt-blacklist';
 
-const register = function register(server, options, next) {
+export const register = function register(server, options, next) {
     Blacklist.configure({
         tokenId: 'jti',
         store: {
@@ -23,9 +23,7 @@ const register = function register(server, options, next) {
     next();
 };
 
-register.attributes = {
+(<any>register).attributes = {
     name: 'auth-wrapper',
     version: '1.0.0'
 };
-
-module.exports = { register };

@@ -48,7 +48,6 @@ exports.login = function (request, reply) {
 };
 
 exports.logout = function (request, reply) {
-    console.log(request.auth.credentials);
     Blacklist.revoke(request.auth.credentials);
     return reply();
 };

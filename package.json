@@ -2,11 +2,12 @@
   "name": "hapi-postgres-rest-starter",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node src/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cross-env NODE_ENV=production ts-node --fast src/server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "test": "lab --sourcemaps --transform node_modules/lab-transform-typescript --ignore typeormMetadataArgsStorage",
+    "orm": "ts-node ./node_modules/typeorm/cli.js",
     "build": "exit 0"
   },
   "author": "",
@@ -34,13 +35,18 @@
     "pg": "^7.3.0",
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.10",
+    "ts-node": "^3.3.0",
     "typeorm": "^0.1.0",
+    "typescript": "^2.5.3",
     "vision": "^4.1.1"
   },
   "devDependencies": {
+    "@types/node": "^8.0.34",
     "eslint": "^4.8.0",
     "eslint-config-hapi": "^10.1.0",
     "eslint-plugin-hapi": "^4.0.0",
+    "lab": "^14.3.1",
+    "lab-transform-typescript": "^3.0.1",
     "nodemon": "^1.12.1"
   }
 }

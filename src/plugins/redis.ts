@@ -1,8 +1,8 @@
 'use strict';
 
-const Redis = require('redis');
+import * as Redis from 'redis';
 
-const register = function register(server, options, next) {
+export const register = function register(server, options, next) {
     const redis = Redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
     redis.on('error', (err) => {
         console.log('Redis Error: ' + err);
@@ -13,9 +13,7 @@ const register = function register(server, options, next) {
     next();
 };
 
-register.attributes = {
+(<any>register).attributes = {
     name: 'redis-wrapper',
     version: '1.0.0'
 };
-
-module.exports = { register };
