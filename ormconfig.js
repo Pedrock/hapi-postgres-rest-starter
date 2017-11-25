@@ -2,6 +2,9 @@
 
 require('dotenv-safe').load({ allowEmptyValues: true });
 
+const isTsNode = require.main.filename.endsWith('.ts') || require.main.filename.includes('lab\\bin\\lab');
+const path = isTsNode ? 'src' : 'dist';
+
 module.exports = {
     type: 'postgres',
     host: process.env.DB_HOST || '127.0.0.1',
@@ -13,17 +16,17 @@ module.exports = {
     logging: process.env.NODE_ENV === 'development',
     migrationsRun: true,
     entities: [
-        'src/entities/**/*.ts'
+        `${path}/server/entities/**/*.{ts,js}`
     ],
     migrations: [
-        'src/migrations/**/*.ts'
+        `${path}/server/migrations/**/*.{ts,js}`
     ],
     subscribers: [
-        'src/subscribers/**/*.ts'
+        `${path}/server/subscribers/**/*.{ts,js}`
     ],
     cli: {
-        entitiesDir: 'src/entities',
-        migrationsDir: 'src/migrations',
-        subscribersDir: 'src/subscribers'
+        entitiesDir: 'src/server/entities',
+        migrationsDir: 'src/server/migrations',
+        subscribersDir: 'src/server/subscribers'
     }
 };

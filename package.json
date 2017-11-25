@@ -2,13 +2,13 @@
   "name": "hapi-postgres-rest-starter",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.ts",
   "scripts": {
-    "start": "cross-env NODE_ENV=production ts-node --fast src/server.ts",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
     "dev": "cross-env NODE_ENV=development nodemon",
-    "test": "lab --sourcemaps --transform node_modules/lab-transform-typescript --ignore typeormMetadataArgsStorage",
-    "orm": "ts-node ./node_modules/typeorm/cli.js",
-    "build": "exit 0"
+    "docker:dev": "node ./docker-dev.js",
+    "test": "lab src/test --sourcemaps --transform node_modules/lab-transform-typescript --ignore typeormMetadataArgsStorage -m 5000",
+    "orm": "ts-node --fast ./node_modules/typeorm/cli.js",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
@@ -36,7 +36,7 @@
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.10",
     "ts-node": "^3.3.0",
-    "typeorm": "^0.1.0",
+    "typeorm": "^0.1.6",
     "typescript": "^2.5.3",
     "vision": "^4.1.1"
   },

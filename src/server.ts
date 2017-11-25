@@ -15,9 +15,9 @@ const manifest = {
     ],
     registrations: [
         { plugin: 'hapi-auth-jwt2' },
-        { plugin: './plugins/auth-wrapper' },
-        { plugin: './plugins/db' },
-        { plugin: './plugins/redis' },
+        { plugin: './server/plugins/auth-wrapper' },
+        { plugin: './server/plugins/db' },
+        { plugin: './server/plugins/redis' },
         { plugin: 'inert' },
         { plugin: 'vision' },
         { plugin: {
@@ -38,7 +38,7 @@ const manifest = {
                 options: { showAuth: true }
             }
         },
-        { plugin: './plugins/double-submit-cookie' },
+        { plugin: './server/plugins/double-submit-cookie' },
         {
             plugin: {
                 register: 'good',
@@ -61,7 +61,7 @@ const manifest = {
         },
         {
             plugin: {
-                register: './routes/routes',
+                register: './server/routes/routes',
                 routes: { prefix: '/api' }
             }
         }
